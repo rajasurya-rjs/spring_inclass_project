@@ -21,34 +21,30 @@ public class JwtFilter extends OncePerRequestFilter {
                                     FilterChain chain) throws ServletException, IOException {
 
         String path = req.getRequestURI();
-
-        // Skip JWT validation for public authentication endpoints
+        // Skip JWT check for login/register endpoints
         if (path.startsWith("/api/auth")) {
             chain.doFilter(req, res);
             return;
         }
 
         String authHeader = req.getHeader("Authorization");
-
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
             String token = authHeader.substring(7);
-
             try {
                 String username = JwtUtil.getUsernameFromToken(token);
                 String role = JwtUtil.getRoleFromToken(token);
-
+                // NOTE: 'role' already has 'ROLE_' prefix, so use it directly
                 UsernamePasswordAuthenticationToken auth =
                         new UsernamePasswordAuthenticationToken(
                                 username,
                                 null,
-                                List.of(new SimpleGrantedAuthority("ROLE_" + role))
+                                List.of(new SimpleGrantedAuthority(role))
                         );
-
                 SecurityContextHolder.getContext().setAuthentication(auth);
             } catch (Exception ignored) {
+                // If token is invalid, we simply don't authenticate; request will fail authorization if needed
             }
         }
-
         chain.doFilter(req, res);
     }
 }

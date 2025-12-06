@@ -26,7 +26,7 @@ public class AuthController {
     @PostMapping("/login")
     public ResponseEntity<String> login(@Valid @RequestBody AuthRequest req) {
         String token = authService.login(req);
-        if (token == null) return ResponseEntity.status(401).body("Invalid credentials");
+        // If login fails, exceptions are thrown; success returns the JWT token
         return ResponseEntity.ok(token);
     }
 }
