@@ -4,7 +4,7 @@ import org.example.rideshare.dto.AuthRequest;
 import org.example.rideshare.dto.UserRegisterRequest;
 import org.example.rideshare.exception.NotFoundException;
 import org.example.rideshare.model.User;
-import org.example.rideshare.repository.UserRepo;
+import org.example.rideshare.repository.UserRepository;
 import org.example.rideshare.util.JwtUtil;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -12,19 +12,19 @@ import org.springframework.stereotype.Service;
 @Service
 public class AuthService {
 
-    private final UserRepo repo;
+    private final UserRepository repo;
     private final BCryptPasswordEncoder encoder;
 
-    public AuthService(UserRepo r, BCryptPasswordEncoder e){
-        repo = r;
-        encoder = e;
+    public AuthService(UserRepository repo, BCryptPasswordEncoder encoder) {
+        this.repo = repo;
+        this.encoder = encoder;
     }
 
     public void register(UserRegisterRequest req){
         User u = new User();
         u.setUsername(req.getUsername());
         u.setPassword(encoder.encode(req.getPassword()));
-        u.setRole(req.getRole().replace("ROLE_", ""));
+        u.setRole(req.getRole());
         repo.save(u);
     }
 
