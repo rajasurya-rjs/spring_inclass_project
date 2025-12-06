@@ -2,11 +2,8 @@ package org.example.rideshare.util;
 
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
-import org.springframework.stereotype.Component;
-
 import java.util.Date;
 
-@Component
 public class JwtUtil {
 
     private static final String SECRET = "myverylongsecretkeyformytoken123456";
@@ -16,8 +13,8 @@ public class JwtUtil {
                 .setSubject(username)
                 .claim("role", role)
                 .setIssuedAt(new Date())
-                .setExpiration(new Date(System.currentTimeMillis() + 1000*60*60)) // 1 hr
-                .signWith(Keys.hmacShaKeyFor(SECRET.getBytes()))
+                .setExpiration(new Date(System.currentTimeMillis() + 1000*60*60)) // 1 hour expiry
+                .signWith(Keys.hmacShaKeyFor(SECRET.getBytes()))  // sign using HMAC-SHA
                 .compact();
     }
 
@@ -28,7 +25,7 @@ public class JwtUtil {
     }
 
     public static String getRoleFromToken(String token){
-        return (String)Jwts.parserBuilder()
+        return (String) Jwts.parserBuilder()
                 .setSigningKey(SECRET.getBytes()).build()
                 .parseClaimsJws(token).getBody().get("role");
     }

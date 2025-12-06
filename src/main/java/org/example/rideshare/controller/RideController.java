@@ -20,40 +20,37 @@ public class RideController {
         this.rideService = rideService;
     }
 
-    // Request a new ride (passenger)
+    // Passenger: request a new ride
     @PostMapping("/rides")
-    public ResponseEntity<Ride> createRide(@Valid @RequestBody RideCreateRequest req,
-                                           Authentication auth) {
-        // Authentication.getName() holds the username (user ID)
+    public ResponseEntity<Ride> create(@Valid @RequestBody RideCreateRequest req,
+                                       Authentication auth) {
         Ride r = rideService.createRide(auth.getName(), req);
         return ResponseEntity.ok(r);
     }
 
-    // Driver: view all pending (requested) rides
+    // Driver: view all pending rides
     @GetMapping("/driver/rides/requests")
-    public ResponseEntity<List<Ride>> getPendingRides() {
-        List<Ride> list = rideService.getPendingRides();
-        return ResponseEntity.ok(list);
+    public ResponseEntity<List<Ride>> pending() {
+        return ResponseEntity.ok(rideService.getPendingRides());
     }
 
-    // Driver: accept a ride request
+    // Driver: accept a ride
     @PostMapping("/driver/rides/{id}/accept")
-    public ResponseEntity<String> acceptRide(@PathVariable String id, Authentication auth) {
+    public ResponseEntity<String> accept(@PathVariable String id, Authentication auth) {
         rideService.acceptRide(id, auth.getName());
-        return ResponseEntity.ok("Ride accepted");
+        return ResponseEntity.ok("accepted");
     }
 
-    // Complete a ride (driver or user)
+    // User or Driver: complete a ride
     @PostMapping("/rides/{id}/complete")
-    public ResponseEntity<String> completeRide(@PathVariable String id) {
+    public ResponseEntity<String> complete(@PathVariable String id) {
         rideService.completeRide(id);
-        return ResponseEntity.ok("Ride completed");
+        return ResponseEntity.ok("done");
     }
 
-    // User: view their own rides
+    // User: view own rides
     @GetMapping("/user/rides")
-    public ResponseEntity<List<Ride>> getMyRides(Authentication auth) {
-        List<Ride> list = rideService.getUserRides(auth.getName());
-        return ResponseEntity.ok(list);
+    public ResponseEntity<List<Ride>> my(Authentication auth) {
+        return ResponseEntity.ok(rideService.getUserRides(auth.getName()));
     }
 }

@@ -21,7 +21,6 @@ public class JwtFilter extends OncePerRequestFilter {
                                     FilterChain chain) throws ServletException, IOException {
 
         String path = req.getRequestURI();
-        // Skip JWT check for login/register endpoints
         if (path.startsWith("/api/auth")) {
             chain.doFilter(req, res);
             return;
@@ -33,7 +32,8 @@ public class JwtFilter extends OncePerRequestFilter {
             try {
                 String username = JwtUtil.getUsernameFromToken(token);
                 String role = JwtUtil.getRoleFromToken(token);
-                // NOTE: 'role' already has 'ROLE_' prefix, so use it directly
+
+                // Use the role directly; Spring expects roles with "ROLE_" prefix already
                 UsernamePasswordAuthenticationToken auth =
                         new UsernamePasswordAuthenticationToken(
                                 username,
@@ -42,7 +42,7 @@ public class JwtFilter extends OncePerRequestFilter {
                         );
                 SecurityContextHolder.getContext().setAuthentication(auth);
             } catch (Exception ignored) {
-                // If token is invalid, we simply don't authenticate; request will fail authorization if needed
+                // invalid token; do nothing (will result in 401 later)
             }
         }
         chain.doFilter(req, res);
