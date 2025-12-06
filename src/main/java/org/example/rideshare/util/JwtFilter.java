@@ -17,12 +17,20 @@ import java.util.List;
 public class JwtFilter extends OncePerRequestFilter {
 
     @Override
-    protected void doFilterInternal(HttpServletRequest req, HttpServletResponse res, FilterChain chain)
-            throws ServletException, IOException {
+    protected void doFilterInternal(HttpServletRequest req, HttpServletResponse res,
+                                    FilterChain chain) throws ServletException, IOException {
+
+        String path = req.getRequestURI();
+
+        // Skip JWT validation for public authentication endpoints
+        if (path.startsWith("/api/auth")) {
+            chain.doFilter(req, res);
+            return;
+        }
 
         String authHeader = req.getHeader("Authorization");
 
-        if(authHeader != null && authHeader.startsWith("Bearer ")) {
+        if (authHeader != null && authHeader.startsWith("Bearer ")) {
             String token = authHeader.substring(7);
 
             try {
@@ -30,13 +38,14 @@ public class JwtFilter extends OncePerRequestFilter {
                 String role = JwtUtil.getRoleFromToken(token);
 
                 UsernamePasswordAuthenticationToken auth =
-                        new UsernamePasswordAuthenticationToken(username, null,
-                                List.of(new SimpleGrantedAuthority("ROLE_" + role)));
+                        new UsernamePasswordAuthenticationToken(
+                                username,
+                                null,
+                                List.of(new SimpleGrantedAuthority("ROLE_" + role))
+                        );
 
                 SecurityContextHolder.getContext().setAuthentication(auth);
-
-            } catch (Exception e) {
-                // ignore invalid token
+            } catch (Exception ignored) {
             }
         }
 

@@ -12,7 +12,7 @@ public class UserRegisterRequest {
     private String password;
 
     @NotBlank(message = "role required")
-    @Pattern(regexp = "USER|DRIVER", message = "role must be USER or DRIVER")
+    @Pattern(regexp = "ROLE_USER|ROLE_DRIVER", message = "role must be ROLE_USER or ROLE_DRIVER")
     private String role;
 
     public String getUsername(){ return username; }
