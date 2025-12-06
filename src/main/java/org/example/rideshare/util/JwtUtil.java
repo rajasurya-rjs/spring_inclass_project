@@ -1,42 +1,35 @@
 package org.example.rideshare.util;
 
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
+import org.springframework.stereotype.Component;
 
-import javax.crypto.SecretKey;
 import java.util.Date;
 
+@Component
 public class JwtUtil {
 
-    private static final SecretKey SECRET_KEY = Keys.secretKeyFor(SignatureAlgorithm.HS256);
-    private static final long EXPIRATION_TIME = 86400000; // 24 hours
+    private static final String SECRET = "myverylongsecretkeyformytoken123456";
 
-    public static String generateToken(String username, String role) {
+    public static String generateToken(String username, String role){
         return Jwts.builder()
-                .claim("username", username)
+                .setSubject(username)
                 .claim("role", role)
                 .setIssuedAt(new Date())
-                .setExpiration(new Date(System.currentTimeMillis() + EXPIRATION_TIME))
-                .signWith(SECRET_KEY)
+                .setExpiration(new Date(System.currentTimeMillis() + 1000*60*60)) // 1 hr
+                .signWith(Keys.hmacShaKeyFor(SECRET.getBytes()))
                 .compact();
     }
 
-    public static String getUsernameFromToken(String token) {
+    public static String getUsernameFromToken(String token){
         return Jwts.parserBuilder()
-                .setSigningKey(SECRET_KEY)
-                .build()
-                .parseClaimsJws(token)
-                .getBody()
-                .get("username", String.class);
+                .setSigningKey(SECRET.getBytes()).build()
+                .parseClaimsJws(token).getBody().getSubject();
     }
 
-    public static String getRoleFromToken(String token) {
-        return Jwts.parserBuilder()
-                .setSigningKey(SECRET_KEY)
-                .build()
-                .parseClaimsJws(token)
-                .getBody()
-                .get("role", String.class);
+    public static String getRoleFromToken(String token){
+        return (String)Jwts.parserBuilder()
+                .setSigningKey(SECRET.getBytes()).build()
+                .parseClaimsJws(token).getBody().get("role");
     }
 }

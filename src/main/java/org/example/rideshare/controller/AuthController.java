@@ -1,5 +1,6 @@
 package org.example.rideshare.controller;
 
+import jakarta.validation.Valid;
 import org.example.rideshare.dto.AuthRequest;
 import org.example.rideshare.dto.UserRegisterRequest;
 import org.example.rideshare.service.AuthService;
@@ -17,13 +18,13 @@ public class AuthController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<String> register(@RequestBody UserRegisterRequest req){
+    public ResponseEntity<String> register(@Valid @RequestBody UserRegisterRequest req){
         service.register(req);
         return ResponseEntity.ok("Registered");
     }
 
     @PostMapping("/login")
-    public ResponseEntity<String> login(@RequestBody AuthRequest req){
+    public ResponseEntity<String> login(@Valid @RequestBody AuthRequest req){
         String token = service.login(req);
         if(token == null) return ResponseEntity.status(401).body("Invalid");
         return ResponseEntity.ok(token);

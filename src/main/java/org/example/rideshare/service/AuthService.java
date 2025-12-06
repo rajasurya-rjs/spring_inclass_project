@@ -2,8 +2,9 @@ package org.example.rideshare.service;
 
 import org.example.rideshare.dto.AuthRequest;
 import org.example.rideshare.dto.UserRegisterRequest;
+import org.example.rideshare.exception.NotFoundException;
 import org.example.rideshare.model.User;
-import org.example.rideshare.repository.UserRepository;
+import org.example.rideshare.repository.UserRepo;
 import org.example.rideshare.util.JwtUtil;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -11,27 +12,26 @@ import org.springframework.stereotype.Service;
 @Service
 public class AuthService {
 
-    private final UserRepository userRepo;
+    private final UserRepo repo;
     private final BCryptPasswordEncoder encoder;
 
-    public AuthService(UserRepository userRepo) {
-        this.userRepo = userRepo;
-        this.encoder = new BCryptPasswordEncoder();
+    public AuthService(UserRepo r, BCryptPasswordEncoder e){
+        repo = r;
+        encoder = e;
     }
 
-    public void register(UserRegisterRequest req) {
-        User user = new User();
-        user.setUsername(req.getUsername());
-        user.setPassword(encoder.encode(req.getPassword()));
-        user.setRole(req.getRole());
-        userRepo.save(user);
+    public void register(UserRegisterRequest req){
+        User u = new User();
+        u.setUsername(req.getUsername());
+        u.setPassword(encoder.encode(req.getPassword()));
+        u.setRole(req.getRole().replace("ROLE_", ""));
+        repo.save(u);
     }
 
-    public String login(AuthRequest req) {
-        User user = userRepo.findByUsername(req.getUsername()).orElse(null);
-        if (user != null && encoder.matches(req.getPassword(), user.getPassword())) {
-            return JwtUtil.generateToken(user.getUsername(), user.getRole());
-        }
-        return null;
+    public String login(AuthRequest req){
+        User u = repo.findByUsername(req.getUsername()).orElse(null);
+        if(u == null) throw new NotFoundException("User not found");
+        if(!encoder.matches(req.getPassword(), u.getPassword())) return null;
+        return JwtUtil.generateToken(u.getUsername(), u.getRole());
     }
 }

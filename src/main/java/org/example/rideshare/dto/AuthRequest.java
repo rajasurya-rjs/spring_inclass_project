@@ -1,18 +1,37 @@
-package org.example.rideshare.dto;
+package org.example.rideshare.service;
 
-import jakarta.validation.constraints.NotBlank;
+import org.example.rideshare.dto.AuthRequest;
+import org.example.rideshare.dto.UserRegisterRequest;
+import org.example.rideshare.model.User;
+import org.example.rideshare.repository.UserRepository;
+import org.example.rideshare.util.JwtUtil;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.stereotype.Service;
 
-public class AuthRequest {
+@Service
+public class AuthService {
 
-    @NotBlank(message = "username required")
-    private String username;
+    private final UserRepository userRepo;
+    private final BCryptPasswordEncoder encoder;
 
-    @NotBlank(message = "password required")
-    private String password;
+    public AuthService(UserRepository userRepo) {
+        this.userRepo = userRepo;
+        this.encoder = new BCryptPasswordEncoder();
+    }
 
-    public String getUsername(){ return username; }
-    public void setUsername(String v){ username = v; }
+    public void register(UserRegisterRequest req) {
+        User user = new User();
+        user.setUsername(req.getUsername());
+        user.setPassword(encoder.encode(req.getPassword()));
+        user.setRole(req.getRole().toUpperCase());  // 🔥 important
+        userRepo.save(user);
+    }
 
-    public String getPassword(){ return password; }
-    public void setPassword(String v){ password = v; }
+    public String login(AuthRequest req) {
+        User user = userRepo.findByUsername(req.getUsername()).orElse(null);
+        if (user != null && encoder.matches(req.getPassword(), user.getPassword())) {
+            return JwtUtil.generateToken(user.getUsername(), user.getRole());
+        }
+        return null;
+    }
 }

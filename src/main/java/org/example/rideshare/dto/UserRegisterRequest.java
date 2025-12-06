@@ -1,6 +1,7 @@
 package org.example.rideshare.dto;
 
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
 
 public class UserRegisterRequest {
 
@@ -11,6 +12,7 @@ public class UserRegisterRequest {
     private String password;
 
     @NotBlank(message = "role required")
+    @Pattern(regexp = "USER|DRIVER", message = "role must be USER or DRIVER")
     private String role;
 
     public String getUsername(){ return username; }
