@@ -1,5 +1,7 @@
 package org.example.rideshare.controller;
 
+import jakarta.validation.Valid;
+import org.example.rideshare.dto.RideCreateRequest;
 import org.example.rideshare.model.Ride;
 import org.example.rideshare.repository.RideRepository;
 import org.example.rideshare.util.JwtUtil;
@@ -21,14 +23,17 @@ public class RideController {
     }
 
     @PostMapping("/rides")
-    public ResponseEntity<Ride> create(@RequestBody Ride ride, Authentication auth){
-        String user = auth.getName();
-        ride.setUserId(user);
-        ride.setStatus("REQUESTED");
-        ride.setCreatedAt(new Date());
-        repo.save(ride);
-        return ResponseEntity.ok(ride);
+    public ResponseEntity<Ride> create(@Valid @RequestBody RideCreateRequest req, Authentication auth){
+        Ride r = new Ride();
+        r.setPickupLocation(req.getPickupLocation());
+        r.setDropLocation(req.getDropLocation());
+        r.setCreatedAt(new Date());
+        r.setStatus("REQUESTED");
+        r.setUserId(auth.getName());
+        repo.save(r);
+        return ResponseEntity.ok(r);
     }
+
 
     @GetMapping("/driver/rides/requests")
     public ResponseEntity<List<Ride>> pending(){
