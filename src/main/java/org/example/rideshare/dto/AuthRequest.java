@@ -4,25 +4,15 @@ import jakarta.validation.constraints.NotBlank;
 
 public class AuthRequest {
 
-    @NotBlank
+    @NotBlank(message = "username required")
     private String username;
 
-    @NotBlank
+    @NotBlank(message = "password required")
     private String password;
 
-    public String getUsername() {
-        return username;
-    }
+    public String getUsername(){ return username; }
+    public void setUsername(String v){ username = v; }
 
-    public void setUsername(String username) {
-        this.username = username;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
-    }
+    public String getPassword(){ return password; }
+    public void setPassword(String v){ password = v; }
 }
