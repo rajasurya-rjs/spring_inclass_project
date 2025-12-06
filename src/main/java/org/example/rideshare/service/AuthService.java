@@ -1,7 +1,7 @@
 package org.example.rideshare.service;
 
-import org.example.rideshare.dto.LoginRequest;
-import org.example.rideshare.dto.RegisterRequest;
+import org.example.rideshare.dto.AuthRequest;
+import org.example.rideshare.dto.UserRegisterRequest;
 import org.example.rideshare.model.User;
 import org.example.rideshare.repository.UserRepository;
 import org.example.rideshare.util.JwtUtil;
@@ -19,7 +19,7 @@ public class AuthService {
         this.encoder = new BCryptPasswordEncoder();
     }
 
-    public void register(RegisterRequest req) {
+    public void register(UserRegisterRequest req) {
         User user = new User();
         user.setUsername(req.getUsername());
         user.setPassword(encoder.encode(req.getPassword()));
@@ -27,8 +27,8 @@ public class AuthService {
         userRepo.save(user);
     }
 
-    public String login(LoginRequest req) {
-        User user = userRepo.findByUsername(req.getUsername());
+    public String login(AuthRequest req) {
+        User user = userRepo.findByUsername(req.getUsername()).orElse(null);
         if (user != null && encoder.matches(req.getPassword(), user.getPassword())) {
             return JwtUtil.generateToken(user.getUsername(), user.getRole());
         }
