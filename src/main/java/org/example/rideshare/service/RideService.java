@@ -23,7 +23,7 @@ public class RideService {
         r.setUserId(userId);
         r.setPickupLocation(request.getPickupLocation());
         r.setDropLocation(request.getDropLocation());
-        // status and createdAt are set by the constructor
+
         return repo.save(r);
     }
 
@@ -38,9 +38,11 @@ public class RideService {
     public Ride acceptRide(String rideId, String driverId) {
         Ride r = repo.findById(rideId)
                 .orElseThrow(() -> new NotFoundException("Ride not found"));
+
         if (!"REQUESTED".equals(r.getStatus())) {
             throw new BadRequestException("Ride is not in REQUESTED status");
         }
+
         r.setDriverId(driverId);
         r.setStatus("ACCEPTED");
         return repo.save(r);
@@ -49,9 +51,14 @@ public class RideService {
     public Ride completeRide(String rideId) {
         Ride r = repo.findById(rideId)
                 .orElseThrow(() -> new NotFoundException("Ride not found"));
+
         if (!"ACCEPTED".equals(r.getStatus())) {
             throw new BadRequestException("Ride is not ACCEPTED yet");
         }
+
+        // Simple fare logic (static for now)
+        r.setFare(150.0);
+
         r.setStatus("COMPLETED");
         return repo.save(r);
     }

@@ -9,9 +9,10 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
-@RequestMapping("/api/v1")
+@RequestMapping("/api")
 public class RideController {
 
     private final RideService rideService;
@@ -20,37 +21,53 @@ public class RideController {
         this.rideService = rideService;
     }
 
-    // Passenger: request a new ride
+    // Passenger: create ride
     @PostMapping("/rides")
-    public ResponseEntity<Ride> create(@Valid @RequestBody RideCreateRequest req,
-                                       Authentication auth) {
+    public ResponseEntity<Ride> createRide(
+            @Valid @RequestBody RideCreateRequest req,
+            Authentication auth
+    ) {
         Ride r = rideService.createRide(auth.getName(), req);
         return ResponseEntity.ok(r);
     }
 
-    // Driver: view all pending rides
+    // Passenger: view own rides
+    @GetMapping("/user/rides")
+    public ResponseEntity<List<Ride>> myRides(Authentication auth) {
+        return ResponseEntity.ok(rideService.getUserRides(auth.getName()));
+    }
+
+    // Driver: view all pending ride requests
     @GetMapping("/driver/rides/requests")
-    public ResponseEntity<List<Ride>> pending() {
+    public ResponseEntity<List<Ride>> pendingRides() {
         return ResponseEntity.ok(rideService.getPendingRides());
     }
 
-    // Driver: accept a ride
-    @PostMapping("/driver/rides/{id}/accept")
-    public ResponseEntity<String> accept(@PathVariable String id, Authentication auth) {
-        rideService.acceptRide(id, auth.getName());
-        return ResponseEntity.ok("accepted");
+    // Driver: accept ride
+    @PostMapping("/driver/rides/accept/{id}")
+    public ResponseEntity<?> acceptRide(
+            @PathVariable String id,
+            Authentication auth
+    ) {
+        Ride r = rideService.acceptRide(id, auth.getName());
+        return ResponseEntity.ok(Map.of(
+                "message", "Ride accepted",
+                "rideId", r.getId(),
+                "status", r.getStatus()
+        ));
     }
 
-    // User or Driver: complete a ride
+    // Driver/User: complete ride
     @PostMapping("/rides/{id}/complete")
-    public ResponseEntity<String> complete(@PathVariable String id) {
-        rideService.completeRide(id);
-        return ResponseEntity.ok("done");
-    }
-
-    // User: view own rides
-    @GetMapping("/user/rides")
-    public ResponseEntity<List<Ride>> my(Authentication auth) {
-        return ResponseEntity.ok(rideService.getUserRides(auth.getName()));
+    public ResponseEntity<?> completeRide(
+            @PathVariable String id,
+            Authentication auth
+    ) {
+        Ride r = rideService.completeRide(id);
+        return ResponseEntity.ok(Map.of(
+                "message", "Ride completed successfully",
+                "rideId", r.getId(),
+                "status", r.getStatus()
+        ));
     }
 }

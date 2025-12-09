@@ -20,67 +20,40 @@ public class Ride {
     @NotBlank
     private String dropLocation;
 
-    private String status;
+    private Double fare; // NEW FIELD
+
+    private String status; // REQUESTED, ACCEPTED, COMPLETED
     private Date createdAt;
 
     public Ride() {
         this.status = "REQUESTED";
         this.createdAt = new Date();
+        this.fare = 0.0; // default
     }
 
-    public String getId() {
-        return id;
-    }
+    // ======= GETTERS & SETTERS =======
 
-    public void setId(String id) {
-        this.id = id;
-    }
+    public String getId() { return id; }
+    public void setId(String id) { this.id = id; }
 
-    public String getUserId() {
-        return userId;
-    }
+    public String getUserId() { return userId; }
+    public void setUserId(String userId) { this.userId = userId; }
 
-    public void setUserId(String userId) {
-        this.userId = userId;
-    }
+    public String getDriverId() { return driverId; }
+    public void setDriverId(String driverId) { this.driverId = driverId; }
 
-    public String getDriverId() {
-        return driverId;
-    }
+    public String getPickupLocation() { return pickupLocation; }
+    public void setPickupLocation(String pickupLocation) { this.pickupLocation = pickupLocation; }
 
-    public void setDriverId(String driverId) {
-        this.driverId = driverId;
-    }
+    public String getDropLocation() { return dropLocation; }
+    public void setDropLocation(String dropLocation) { this.dropLocation = dropLocation; }
 
-    public String getPickupLocation() {
-        return pickupLocation;
-    }
+    public Double getFare() { return fare; }
+    public void setFare(Double fare) { this.fare = fare; }
 
-    public void setPickupLocation(String pickupLocation) {
-        this.pickupLocation = pickupLocation;
-    }
+    public String getStatus() { return status; }
+    public void setStatus(String status) { this.status = status; }
 
-    public String getDropLocation() {
-        return dropLocation;
-    }
-
-    public void setDropLocation(String dropLocation) {
-        this.dropLocation = dropLocation;
-    }
-
-    public String getStatus() {
-        return status;
-    }
-
-    public void setStatus(String status) {
-        this.status = status;
-    }
-
-    public Date getCreatedAt() {
-        return createdAt;
-    }
-
-    public void setCreatedAt(Date createdAt) {
-        this.createdAt = createdAt;
-    }
+    public Date getCreatedAt() { return createdAt; }
+    public void setCreatedAt(Date createdAt) { this.createdAt = createdAt; }
 }
