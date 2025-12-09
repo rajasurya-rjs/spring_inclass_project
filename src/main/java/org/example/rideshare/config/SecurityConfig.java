@@ -30,10 +30,10 @@ public class SecurityConfig {
                         .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers("/api/driver/**").hasRole("DRIVER")
                         .requestMatchers("/api/user/**").hasRole("USER")
-                        .requestMatchers("/api/rides/complete/**").hasAnyRole("USER", "DRIVER")
+                        // Corrected for dynamic path order: /api/rides/{id}/complete
+                        .requestMatchers("/api/rides/*/complete").hasAnyRole("USER", "DRIVER")
                         .anyRequest().authenticated()
                 );
-
 
         http.addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
         return http.build();
